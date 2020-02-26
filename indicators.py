@@ -7,7 +7,7 @@ import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt
 
-from util import get_data, plot_data
+from util import get_data, normalize, standard_score
 
 SYMBOL = "JPM"
 IN_SAMPLE_DATES = (dt.datetime(2008, 1, 1), dt.datetime(2009, 12, 31))
@@ -69,22 +69,22 @@ def bollinger_bands(prices, n=20, m=2):
 
 def rsi(prices, period=14):
     """ Calculate Relative Strength Index - RSI
-    Momentum indicator that measures the magnitude of recent price changes
-        to evaluate overbought or oversold
-    The RSI compares bullish and bearish price momentum
+    Momentum indicator that measures the magnitude of recent price changes 
+        to evaluate overbought or oversold 
+    The RSI compares bullish and bearish price momentum 
         plotted against the graph of an asset's price.
-    Signals are considered overbought when the indicator is above 70%
+    Signals are considered overbought when the indicator is above 70% 
         and oversold when the indicator is below 30%.
 
     RSI = 100 - 100 / (1 + RS)
     RS = avg_gain / avg_loss
 
-    The very first calculations for average gain and average loss
+    The very first calculations for average gain and average loss 
         are simple 14-period averages:
     First Average Gain = Sum of Gains over the past 14 period / 14
     First Average Loss = Sum of Losses over the past 14 period / 14
 
-    The second, and subsequent, calculations are based on
+    The second, and subsequent, calculations are based on 
         the prior averages and the current gain loss:
     Average Gain = [(previous Average Gain) x 13 + current Gain] / 14
     Average Loss = [(previous Average Loss) x 13 + current Loss] / 14
@@ -112,7 +112,7 @@ def rsi(prices, period=14):
     # calculate RSI
     df_rsi['RSI'] = 100 - 100 / (1 + df_rsi['RS'])
 
-    # print(df_rsi)
+    # print(df_rsi)    
     return df_rsi['RSI']
 
 
@@ -167,22 +167,22 @@ def volatility(prices, period=20):
     return df_var['volatility_z']
 
 
-def test_code():
+def get_df_indicators(prices, plot_df=True, dropNA=False):
     """
-    Technical indicators:
+    Technical indicators: 
     Ref. https://medium.com/@harrynicholls/7-popular-technical-indicators-and-how-to-use-them-to-increase-your-trading-profits-7f13ffeb8d05
         Trend:
             - SMA
-                - If you were using price/SMA as an indicator
-                    you would want to create a chart with 3 lines: Price, SMA, Price/SMA.
-                    In order to facilitate visualization of the indicator you might normalize the data
+                - If you were using price/SMA as an indicator 
+                    you would want to create a chart with 3 lines: Price, SMA, Price/SMA. 
+                    In order to facilitate visualization of the indicator you might normalize the data 
                     to 1.0 at the start of the date range  (i.e. divide price[t] by price[0]).
             - Moving Average Convergence Divergence (MACD)
             - Parabolic Stop and Reverse (SAR)
         Volatility:
             - Bollinger Bands
-                - you might create a chart that shows the price history of the stock,
-                    along with "helper data" (such as upper and lower bollinger bands)
+                - you might create a chart that shows the price history of the stock, 
+                    along with "helper data" (such as upper and lower bollinger bands) 
                     and the value of the indicator itself.
             - AVERAGE TRUE RANGE (ATR)
             - DONCHIAN CHANNELS (DC)
@@ -198,55 +198,25 @@ def test_code():
             - Klinger Volume Oscillator
 
 
-    Return:
+    Return: 
         @df_indicators: technical indicators dataframe for a stock
     """
 
-    # 1. Read data using get_data()
-    train_sd = IN_SAMPLE_DATES[0]
-    train_ed = IN_SAMPLE_DATES[1]
-    symbols = [SYMBOL]
-    # get price data
-    df_prices = get_data(symbols, pd.date_range(train_sd, train_ed))
-    # print(len(df_prices))
-
-    # Check if missing data
-    # Check JPM null
-    spy = get_data(['SPY'], pd.date_range(train_sd, train_ed))
-    assert len(spy) == len(df_prices)
-    # print(df_prices.isnull().values.any())
-
-    # Get pd.Series SPY
-    price_SPY = df_prices['SPY']
-    # print(price_SPY.head())
-    # print(type(price_SPY))
-
-    # Get pd.Series JPM
-    price_JPM = df_prices['JPM']
-    # print(price_JPM.head())
-    # print(type(price_JPM))
-
-    # Normalize data
-    price_SPY = normalize(price_SPY)
-    price_JPM = normalize(price_JPM)
-    # print(price_SPY_norm.head())
-    # print(price_JPM_norm.head())
-
     # 2. initialize df_indicators, every column to save indicator value
-    df_indicators = pd.DataFrame(index=df_prices.index)
-    df_indicators['prices'] = price_JPM
+    df_indicators = pd.DataFrame(index=prices.index)
+    df_indicators['prices'] = prices
 
     # 3. Get moving average
     rolling_window = 20
 
-    mv_avg = sma(price_JPM, rolling_window)
+    mv_avg = sma(prices, rolling_window)
     # print(mv_avg)
 
     df_indicators['sma'] = mv_avg
     # print(df_indicators)
 
     # 4. Get Bollinger Band
-    bb_value, upper_band, lower_band = bollinger_bands(price_JPM, n=rolling_window)
+    bb_value, upper_band, lower_band = bollinger_bands(prices, n=rolling_window)
     # update df_indicators
     df_indicators['bb_value'] = bb_value
     df_indicators['upper_band'] = upper_band
@@ -254,22 +224,29 @@ def test_code():
     # print(df_indicators)
 
     # 5. Get RSI(Relative Strength Index)
-    rsi_value = rsi(price_JPM)
+    rsi_value = rsi(prices)
     # update df_indicators
     df_indicators['RSI'] = rsi_value
     # print(df_indicators)
 
     # 6. Get momentum
-    momentum_value = momentum(price_JPM)
+    momentum_value = momentum(prices)
     df_indicators['momentum'] = momentum_value
     # print(df_indicators)
 
     # 7. Get volatility
-    df_indicators['volatility'] = volatility(price_JPM)
+    df_indicators['volatility'] = volatility(prices)
     # print(df_indicators)
 
-    # 8. Plot indicators
-    plot_indicators(df_indicators)
+    # 8. Drop NA
+    if dropNA:
+        df_indicators.dropna(axis=0, inplace=True)  # axis=0, drop rows contains NA value
+
+    # 9. Plot indicators
+    if plot_df:
+        plot_indicators(df_indicators)
+
+    return df_indicators
 
 
 def plot_indicators(df_indicators):
@@ -322,28 +299,6 @@ def plot_indicators(df_indicators):
                         upper_y=1.0, lower_y=-1.0, middle_y=0.)
 
 
-def normalize(prices):
-    """Normalize pandas DataFrame by divide by first row"""
-    return prices / prices.iloc[0]
-
-
-def standard_score(df):
-    """ Calculate z-score of columns
-    z = (x - mu) / sd
-    mu is the mean of the population.
-    sd is the standard deviation of the population.
-
-    Use axis=0 get column mean and std
-
-    Params:
-    @df: input score, Pandas DataFrame or Series
-
-    Return:
-    @z: output standardlized score
-    """
-    return (df - df.mean(axis=0)) / df.std(axis=0)
-
-
 # From previous exercise
 def compute_daily_returns(df):
     """Compute and return the daily return values."""
@@ -378,4 +333,34 @@ def plot_data_with_line(df, title="Stock prices", xlabel="Date", ylabel="Price",
 
 
 if __name__ == "__main__":
-    test_code()
+    # 1. Read data using get_data()
+    train_sd = IN_SAMPLE_DATES[0]
+    train_ed = IN_SAMPLE_DATES[1]
+    symbols = [SYMBOL]
+    # get price data
+    df_prices = get_data(symbols, pd.date_range(train_sd, train_ed))
+    # print(len(df_prices))
+
+    # Check if missing data
+    # Check JPM null
+    spy = get_data(['SPY'], pd.date_range(train_sd, train_ed))
+    assert len(spy) == len(df_prices)
+    # print(df_prices.isnull().values.any())
+
+    # Get pd.Series SPY
+    price_SPY = df_prices['SPY']
+    # print(price_SPY.head())
+    # print(type(price_SPY))
+
+    # Get pd.Series JPM
+    price_JPM = df_prices['JPM']
+    # print(price_JPM.head())
+    # print(type(price_JPM))
+
+    # Normalize data
+    price_SPY = normalize(price_SPY)
+    price_JPM = normalize(price_JPM)
+    # print(price_SPY_norm.head())
+    # print(price_JPM_norm.head())
+
+    get_df_indicators(price_JPM)
