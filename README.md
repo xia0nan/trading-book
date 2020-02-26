@@ -41,9 +41,7 @@ pip install -r requirements.txt
 
 ## Authors
 
-* **Nan Xiao** - *Initial work* - [trading_book](https://github.com/trading-book)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Nan Xiao** - *Initial work* - [trading-book](https://github.com/trading-book)
 
 ## License
 
