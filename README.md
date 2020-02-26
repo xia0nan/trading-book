@@ -14,7 +14,6 @@ These instructions will get you a conda environment of the project up and runnin
 ```
 - Go to link: https://www.anaconda.com/distribution/ 
 - Install python3 version of latest Anaconda3
-
 ```
 
 ### Installing
