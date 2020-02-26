@@ -3,9 +3,6 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-CURRENT_DIR = Path.cwd()
-
-
 def normalize(prices):
     """Normalize pandas DataFrame by divide by first row"""
     return prices / prices.iloc[0]
