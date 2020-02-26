@@ -6,6 +6,27 @@ import matplotlib.pyplot as plt
 CURRENT_DIR = Path.cwd()
 
 
+def normalize(prices):
+    """Normalize pandas DataFrame by divide by first row"""
+    return prices / prices.iloc[0]
+
+
+def standard_score(df):
+    """ Calculate z-score of columns
+    z = (x - mu) / sd
+    mu is the mean of the population.
+    sd is the standard deviation of the population.
+
+    Use axis=0 get column mean and std
+
+    Params:
+    @df: input score, Pandas DataFrame or Series
+
+    Return:
+    @z: output standardlized score
+    """
+    return (df - df.mean(axis=0)) / df.std(axis=0)
+
 def symbol_to_path(symbol, base_dir=None):
     """Return CSV file path given ticker symbol."""
     if base_dir is None:
