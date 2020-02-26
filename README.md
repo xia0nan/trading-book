@@ -77,9 +77,9 @@ pip install -r requirements.txt
 
 |Date      |Symbol|Order|Shares|
 |----------|------|-----|------|
-|2011-01-10|AAPL  |BUY  |1500  |
-|2011-01-13|AAPL  |SELL |1500  |
-|2011-01-13|IBM   |BUY  |4000  |
+|2012-09-11|AAPL  |SELL |1000  |
+|2012-09-11|IBM   |BUY  |1000  |
+|2011-09-12|SPY   |SELL |1000  |
 
 6. Backtesting with Orders
 
