@@ -92,7 +92,7 @@ pip install -r requirements.txt
 
 ## Authors
 
-* **Nan Xiao** - *Initial work* - [trading-book](https://github.com/trading-book)
+* **Nan Xiao** - *Initial work* - [trading-book-notebook](https://github.com/xia0nan/trading-book/blob/master/notebooks/05_ML_strategy.ipynb)
 
 ## License
 
